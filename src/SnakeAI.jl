@@ -1,5 +1,12 @@
 module SnakeAI
+using GameZero
 
-# Write your package code here.
+export play_snake
+
+include("snakeGame.jl")
+
+function play_snake()
+    GameZero.rungame("src/snakeGame.jl")
+end
 
 end
