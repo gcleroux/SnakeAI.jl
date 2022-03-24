@@ -12,7 +12,7 @@ $ git clone https://github.com/gcleroux/SnakeAI.jl
 
 2. cd into the project
 ```
-$ cd SnakeAI/
+$ cd SnakeAI.jl/
 ```
 
 3. Running the code
