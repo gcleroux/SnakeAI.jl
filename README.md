@@ -19,6 +19,8 @@ $ cd SnakeAI.jl/
 ```julia
 julia> ] activate .
 
+(SnakeAI) pkg> instantiate
+
 julia> using SnakeAI
 
 julia> play_snake()
