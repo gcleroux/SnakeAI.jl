@@ -4,7 +4,7 @@ WIDTH = 640
 HEIGHT = 480
 BACKGROUND = colorant"black"
 BLOCK_SIZE = 20
-SPEED = 20
+SPEED = 6
 
 @enum Direction begin
     UP = 1
@@ -19,7 +19,7 @@ mutable struct Point{T <: Integer}
 end
 
 function Base.:(==)(p1::Point, p2::Point)
-    return (p1.x == p2.x && p1.y == p2.y)
+    return p1.x == p2.x && p1.y == p2.y
 end
 
 mutable struct Snake
@@ -75,7 +75,11 @@ end
 
 function collide(s::Snake)
     # Hits screen edges
-    if s.head.x > WIDTH - BLOCK_SIZE || s.head.x < 0 || s.head.y > HEIGHT - BLOCK_SIZE || s.head.y < 0
+    if s.head.x > WIDTH - BLOCK_SIZE ||
+        s.head.x < 0 ||
+        s.head.y > HEIGHT - BLOCK_SIZE ||
+        s.head.y < 0
+
         return true
     end
 
@@ -84,7 +88,6 @@ function collide(s::Snake)
 end
 
 function game_over()
-    global score
 
     println(
     """
@@ -116,11 +119,7 @@ function draw()
 end
 
 function update(g::Game)
-    # Look for movement
-    global direction, score
-
-    # Bootleg way to slow the game down
-    sleep(0.04)
+    global direction, step
 
     # Movement keys
     if g.keyboard.UP && direction != DOWN
@@ -133,22 +132,33 @@ function update(g::Game)
         direction = RIGHT
     end
 
+    if step == SPEED
+        step = 0
+        update_step(snake, direction)
+    else
+        step += 1
+    end
+end
+
+function update_step(s::Snake, d::Direction)
+    global score
+
     # Move the head
-    head = move(snake, direction)
-    snake.head = head
-    pushfirst!(snake.body, head)
+    head = move(s, d)
+    s.head = head
+    pushfirst!(s.body, head)
 
     # Look for collisions
-    if collide(snake)
+    if collide(s)
         game_over()
     end
 
     # Place new food or move the snake
-    if snake.head == food
+    if s.head == food
         score += 1
         place_food()
     else
-        pop!(snake.body)
+        pop!(s.body)
     end
 
 end
@@ -158,3 +168,4 @@ snake = Snake()
 place_food()
 direction = RIGHT
 score = 0
+step = 0
