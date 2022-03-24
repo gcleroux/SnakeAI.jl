@@ -2,7 +2,7 @@ using Colors
 
 WIDTH = 640
 HEIGHT = 480
-BACKGROUND = colorant"black"  # Black
+BACKGROUND = colorant"black"
 BLOCK_SIZE = 20
 SPEED = 20
 
@@ -43,6 +43,7 @@ function move(s::Snake, d::Direction)
     x = s.head.x
     y = s.head.y
 
+    # Move the head
     if d == UP
         y -= BLOCK_SIZE
     elseif d == DOWN
@@ -59,9 +60,14 @@ end
 
 function place_food()
     global food
+
     x = rand(0:(WIDTH - BLOCK_SIZE) ÷ BLOCK_SIZE) * BLOCK_SIZE
     y = rand(0:(HEIGHT - BLOCK_SIZE) ÷ BLOCK_SIZE) * BLOCK_SIZE
+
+    # Create new food
     food = Point(x, y)
+
+    # Look if food is inside the snake
     if food in snake.body
         place_food()
     end
@@ -132,6 +138,7 @@ function update(g::Game)
     snake.head = head
     pushfirst!(snake.body, head)
 
+    # Look for collisions
     if collide(snake)
         game_over()
     end
