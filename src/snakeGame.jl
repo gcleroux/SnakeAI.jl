@@ -87,21 +87,15 @@ function collide(s::Snake)
     return s.head in snake.body[2:end]
 end
 
-function game_over()
+function reset_game()
+    global direction, score, snake, step
 
-    println(
-    """
-    
-    ==================
-    GAME OVER!
-    Final Score: $score
-    ==================
+    snake = Snake()
+    place_food()
+    direction = RIGHT
+    score = 0
+    step = 0
 
-    Thank you for playing!
-    """)
-
-    # Quitting the game
-    throw(GameZero.QuitException())
 end
 
 function draw()
@@ -150,7 +144,13 @@ function update_step(s::Snake, d::Direction)
 
     # Look for collisions
     if collide(s)
-        game_over()
+        println(
+            """
+            ==================
+            GAME OVER!
+            Final Score: $score
+            ==================\n""")
+        reset_game()
     end
 
     # Place new food or move the snake
@@ -164,8 +164,4 @@ function update_step(s::Snake, d::Direction)
 end
 
 # Initializing the game state
-snake = Snake()
-place_food()
-direction = RIGHT
-score = 0
-step = 0
+reset_game()
