@@ -17,9 +17,11 @@ $ cd SnakeAI.jl/
 
 3. Running the code
 ```julia
-julia> ] activate .
+julia> using Pkg
 
-(SnakeAI) pkg> instantiate
+julia> Pkg.activate(".")
+
+julia> Pkg.instantiate()
 
 julia> using SnakeAI
 
