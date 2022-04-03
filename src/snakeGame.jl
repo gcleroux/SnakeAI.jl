@@ -25,6 +25,7 @@ end
 mutable struct Snake
     head::Point
     body::Vector{Point}
+    last_move::Direction
 
     function Snake(head::Point = Point(WIDTH ÷ 2, HEIGHT ÷ 2))
         
@@ -35,7 +36,7 @@ mutable struct Snake
             Point(head.x - 2*BLOCK_SIZE, head.y)
         ]
 
-        return new(head, body)
+        return new(head, body, RIGHT)
     end
 end
 
@@ -53,6 +54,9 @@ function move(s::Snake, d::Direction)
     elseif d == RIGHT
         x += BLOCK_SIZE
     end
+
+    # Updating the last move of the snake
+    s.last_move = d
 
     # Return the new head
     return Point(x, y)
@@ -116,13 +120,13 @@ function update(g::Game)
     global direction, step
 
     # Movement keys
-    if g.keyboard.UP && direction != DOWN
+    if g.keyboard.UP && snake.last_move != DOWN
         direction = UP
-    elseif g.keyboard.DOWN && direction != UP
+    elseif g.keyboard.DOWN && snake.last_move != UP
         direction = DOWN
-    elseif g.keyboard.LEFT && direction != RIGHT
+    elseif g.keyboard.LEFT && snake.last_move != RIGHT
         direction = LEFT
-    elseif g.keyboard.RIGHT && direction != LEFT
+    elseif g.keyboard.RIGHT && snake.last_move != LEFT
         direction = RIGHT
     end
 
