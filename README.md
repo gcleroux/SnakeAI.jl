@@ -12,12 +12,16 @@ $ git clone https://github.com/gcleroux/SnakeAI.jl
 
 2. cd into the project
 ```
-$ cd SnakeAI/
+$ cd SnakeAI.jl/
 ```
 
 3. Running the code
 ```julia
-julia> ] activate .
+julia> using Pkg
+
+julia> Pkg.activate(".")
+
+julia> Pkg.instantiate()
 
 julia> using SnakeAI
 
