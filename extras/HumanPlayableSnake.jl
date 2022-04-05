@@ -7,8 +7,6 @@ game = SnakeAI.Game()
 step = 0
 
 function draw()
-    global game
-
     # Drawing the snake
     for p in game.snake.body
         r = Rect(p.x, p.y, BLOCK_SIZE, BLOCK_SIZE)
@@ -24,14 +22,14 @@ function update(g::GameZero.Game)
     global game, step
 
     # Movement keys
-    if g.keyboard.UP && game.snake.last_move != DOWN
-        game.direction = UP
-    elseif g.keyboard.DOWN && game.snake.last_move != UP
-        game.direction = DOWN
-    elseif g.keyboard.LEFT && game.snake.last_move != RIGHT
-        game.direction = LEFT
-    elseif g.keyboard.RIGHT && game.snake.last_move != LEFT
-        game.direction = RIGHT
+    if g.keyboard.UP && game.snake.last_move != SnakeAI.DOWN
+        game.direction = SnakeAI.UP
+    elseif g.keyboard.DOWN && game.snake.last_move != SnakeAI.UP
+        game.direction = SnakeAI.DOWN
+    elseif g.keyboard.LEFT && game.snake.last_move != SnakeAI.RIGHT
+        game.direction = SnakeAI.LEFT
+    elseif g.keyboard.RIGHT && game.snake.last_move != SnakeAI.LEFT
+        game.direction = SnakeAI.RIGHT
     end
 
     if step == SPEED

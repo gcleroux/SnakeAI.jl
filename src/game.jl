@@ -1,6 +1,4 @@
 export Game,
-    place_food,
-    new_game,
     play_step
 
 mutable struct Game
@@ -35,11 +33,9 @@ end
 
 function play_step(g::Game)
 
-    # Calculate where to move the head
-    head = move(g.snake, g.direction)
-    g.snake.head = head
-    pushfirst!(g.snake.body, head)
-
+    # Move the snake position
+    tail = move(g.snake, g.direction)
+    
     # Look for collisions
     if collide(g.snake)
         println(
@@ -52,12 +48,13 @@ function play_step(g::Game)
         return Game()
     end
 
-    # Place new food or move the snake
     if g.snake.head == g.food
+        # Snake's length grows by one block
+        push!(g.snake.body, tail)
+
+        # Adjust the score and place new food
         g.score += 1
         g.food = place_food(g.snake)
-    else
-        pop!(g.snake.body)
     end
 
     return g

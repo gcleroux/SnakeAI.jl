@@ -1,11 +1,5 @@
 export Snake,
-    move,
-    collide,
-    Direction,
-    UP, 
-    DOWN, 
-    LEFT, 
-    RIGHT
+    Direction
 
 @enum Direction begin
     UP = 1
@@ -47,11 +41,16 @@ function move(s::Snake, d::Direction)
         x += BLOCK_SIZE
     end
 
+    # Adding the new head to the snake
+    head = Point(x, y)
+    s.head = head
+    pushfirst!(s.body, head)
+
     # Updating the last move of the snake
     s.last_move = d
 
-    # Return the new head
-    return Point(x, y)
+    # Return the old tail
+    return pop!(s.body)
 end
 
 function collide(s::Snake)
