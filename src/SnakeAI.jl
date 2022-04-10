@@ -2,13 +2,15 @@ module SnakeAI
 
 using GameZero
 
-export play_snake
+export play_snake, 
+    Game, 
+    play_step
 
 function play_snake()
-    GameZero.rungame("extras/HumanPlayableSnake.jl")
+    GameZero.rungame("src/extras/HumanPlayableSnake.jl")
 end
 
-include("utils/config.jl")
+include("utils.jl")
 include("point.jl")
 include("snake.jl")
 include("game.jl")

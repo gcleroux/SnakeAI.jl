@@ -1,5 +1,3 @@
-export Point
-
 mutable struct Point{T <: Integer}
     x::T
     y::T

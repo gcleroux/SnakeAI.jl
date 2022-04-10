@@ -1,6 +1,3 @@
-export Snake,
-    Direction
-
 @enum Direction begin
     UP = 1
     DOWN = 2

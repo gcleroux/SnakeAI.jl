@@ -1,6 +1,3 @@
-export Game,
-    play_step
-
 mutable struct Game
     snake::Snake
     food::Point

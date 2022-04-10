@@ -1,5 +1,7 @@
-using SnakeAI
+using ..SnakeAI
 
+const WIDTH = SnakeAI.WIDTH
+const HEIGHT = SnakeAI.HEIGHT
 const BACKGROUND = colorant"black"
 const SPEED = 8
 
@@ -9,12 +11,12 @@ step = 0
 function draw()
     # Drawing the snake
     for p in game.snake.body
-        r = Rect(p.x, p.y, BLOCK_SIZE, BLOCK_SIZE)
+        r = Rect(p.x, p.y, SnakeAI.BLOCK_SIZE, SnakeAI.BLOCK_SIZE)
         draw(r, colorant"blue", fill=true)
     end
 
     # Drawing the food
-    f = Rect(game.food.x, game.food.y, BLOCK_SIZE, BLOCK_SIZE)
+    f = Rect(game.food.x, game.food.y, SnakeAI.BLOCK_SIZE, SnakeAI.BLOCK_SIZE)
     draw(f, colorant"red", fill=true)
 end
 
