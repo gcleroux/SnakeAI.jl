@@ -1,10 +1,3 @@
-@enum Direction begin
-    UP = 1
-    DOWN = 2
-    LEFT = 3
-    RIGHT = 4
-end
-
 mutable struct Snake
     head::Point
     body::Vector{Point}
