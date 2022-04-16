@@ -23,7 +23,14 @@ mutable struct Snake
     end
 end
 
-function move(s::Snake, d::Direction)
+function Base.show(io::IO, s::Snake)
+    print("$(s.head)[HEAD]")
+    for p in s.body[2:end]
+        print(" <- ", p)
+    end
+end
+
+function move!(s::Snake, d::Direction)
     x = s.head.x
     y = s.head.y
 

@@ -21,7 +21,7 @@ function draw()
 end
 
 function update(g::GameZero.Game)
-    global game, step
+    global step
 
     # Movement keys
     if g.keyboard.UP && game.snake.last_move != SnakeAI.DOWN
@@ -36,7 +36,7 @@ function update(g::GameZero.Game)
 
     if step == SPEED
         step = 0
-        game = play_step(game)
+        play_step!(game)
     else
         step += 1
     end

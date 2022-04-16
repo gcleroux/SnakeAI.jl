@@ -4,7 +4,7 @@ using GameZero
 
 export play_snake, 
     Game, 
-    play_step
+    play_step!
 
 function play_snake()
     GameZero.rungame("src/extras/HumanPlayableSnake.jl")

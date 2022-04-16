@@ -12,8 +12,16 @@ mutable struct Game
     end
 end
 
-function place_food(s::Snake)
+function Base.show(io::IO, game::Game)
+    println("Snake Game")
+    println("==========")
+    println("Snake -> ", game.snake)
+    println("Food -> ", game.food)
+    println("Direction -> ", game.direction)
+    println("Score -> ", game.score)
+end
 
+function place_food(s::Snake)
     x = rand(0:(WIDTH-BLOCK_SIZE)÷BLOCK_SIZE) * BLOCK_SIZE
     y = rand(0:(HEIGHT-BLOCK_SIZE)÷BLOCK_SIZE) * BLOCK_SIZE
 
@@ -28,10 +36,19 @@ function place_food(s::Snake)
     return food
 end
 
-function play_step(g::Game)
+function reset!(game::Game)
+    snake = Snake()
+    food = place_food(snake)
 
+    game.snake = snake
+    game.food = food
+    game.direction = RIGHT
+    game.score = 0
+end
+
+function play_step!(g::Game)
     # Move the snake position
-    tail = move(g.snake, g.direction)
+    tail = move!(g.snake, g.direction)
     
     # Look for collisions
     if collide(g.snake)
@@ -42,10 +59,9 @@ function play_step(g::Game)
             Final Score: $(g.score)
             ==================\n""")
         # Reset the game
-        return Game()
-    end
+        reset!(g)
 
-    if g.snake.head == g.food
+    elseif g.snake.head == g.food
         # Snake's length grows by one block
         push!(g.snake.body, tail)
 
