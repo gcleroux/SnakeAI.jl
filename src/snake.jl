@@ -50,16 +50,21 @@ function move!(s::Snake, d::Direction)
     return pop!(s.body)
 end
 
-function collide(s::Snake)
+function is_collision(s::Snake, p::Union{Point, Nothing}=nothing)
+    # Defaults to the snake's head if no point is given
+    if p === nothing
+        p = s.head
+    end
+    
     # Hits screen edges
-    if s.head.x > WIDTH - BLOCK_SIZE ||
-       s.head.x < 0 ||
-       s.head.y > HEIGHT - BLOCK_SIZE ||
-       s.head.y < 0
+    if p.x > WIDTH - BLOCK_SIZE ||
+       p.x < 0 ||
+       p.y > HEIGHT - BLOCK_SIZE ||
+       p.y < 0
 
         return true
     end
 
     # Check if snake hits itself
-    return s.head in s.body[2:end]
+    return p in s.body[2:end]
 end

@@ -51,7 +51,7 @@ function play_step!(g::Game)
     tail = move!(g.snake, g.direction)
     
     # Look for collisions
-    if collide(g.snake)
+    if is_collision(g.snake)
         println(
             """
             ==================
