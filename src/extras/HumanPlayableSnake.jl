@@ -11,13 +11,16 @@ step = 0
 function draw()
     # Drawing the snake
     for p in game.snake.body
-        r = Rect(p.x, p.y, SnakeAI.BLOCK_SIZE, SnakeAI.BLOCK_SIZE)
-        draw(r, colorant"blue", fill=true)
+        outside = Rect(p.x, p.y, SnakeAI.BLOCK_SIZE, SnakeAI.BLOCK_SIZE)
+        inside = Rect(p.x + 2, p.y + 2, SnakeAI.BLOCK_SIZE - 4, SnakeAI.BLOCK_SIZE - 4)
+        draw(outside, colorant"#00262a", fill=true)
+        draw(inside, colorant"#00717f", fill=true)
+
     end
 
     # Drawing the food
     f = Rect(game.food.x, game.food.y, SnakeAI.BLOCK_SIZE, SnakeAI.BLOCK_SIZE)
-    draw(f, colorant"red", fill=true)
+    draw(f, colorant"#7F0071", fill=true)
 end
 
 function update(g::GameZero.Game)
