@@ -2,7 +2,7 @@ mutable struct Game
     snake::Snake
     food::Point
     direction::Direction
-    score::Int64
+    score::Int
 
     function Game()
         snake = Snake()
