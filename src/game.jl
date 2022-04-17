@@ -59,7 +59,7 @@ function play_step!(g::Game)
             Final Score: $(g.score)
             ==================\n""")
         # Reset the game
-        reset!(g)
+        reset!(g)   # TODO: move this logic out of the game step
 
     elseif g.snake.head == g.food
         # Snake's length grows by one block
