@@ -13,7 +13,51 @@ mutable struct Agent{T <: Integer}
 end
 
 function get_state(game)
+    head = game.snake.head
+    point_l = Point(head.x - BLOCK_SIZE, head.y)
+    point_r = Point(head.x + BLOCK_SIZE, head.y)
+    point_u = Point(head.x, head.y - BLOCK_SIZE)
+    point_d = Point(head.x, head.y + BLOCK_SIZE)
+    
+    dir_l = game.direction == LEFT
+    dir_r = game.direction == RIGHT
+    dir_u = game.direction == UP
+    dir_d = game.direction == DOWN
 
+    # Create the state vector
+    state = [
+        # Danger straight
+        (dir_r && is_collision(game.snake, point_r)) || 
+        (dir_l && is_collision(game.snake, point_l)) || 
+        (dir_u && is_collision(game.snake, point_u)) || 
+        (dir_d && is_collision(game.snake, point_d)),
+
+        # Danger right
+        (dir_u && is_collision(game.snake, point_r)) || 
+        (dir_d && is_collision(game.snake, point_l)) || 
+        (dir_l && is_collision(game.snake, point_u)) || 
+        (dir_r && is_collision(game.snake, point_d)),
+
+        # Danger left
+        (dir_d && is_collision(game.snake, point_r)) || 
+        (dir_u && is_collision(game.snake, point_l)) || 
+        (dir_r && is_collision(game.snake, point_u)) || 
+        (dir_l && is_collision(game.snake, point_d)),
+        
+        # Move direction
+        dir_l,
+        dir_r,
+        dir_u,
+        dir_d,
+        
+        # Food location 
+        game.food.x < game.snake.head.x,  # food left
+        game.food.x > game.snake.head.x,  # food right
+        game.food.y < game.snake.head.y,  # food up
+        game.food.y > game.snake.head.y  # food down
+    ]
+
+    return convert.(Int, state)
 end
 
 function remember(state, action, reward, next_state, done)
@@ -48,7 +92,7 @@ function train()
 
         # Perform the move
         game.direction = final_move
-        play_step!(game)    # Maybe return: score, reward, done?
+        reward, done, score = play_step!(game)
         new_state = get_state(game)
 
         # Train the short memory

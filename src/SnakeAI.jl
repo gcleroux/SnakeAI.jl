@@ -16,6 +16,6 @@ include("constants.jl")
 include("point.jl")
 include("snake.jl")
 include("game.jl")
-#include("agent.jl")
+include("agent.jl")
 
 end
