@@ -50,25 +50,23 @@ function play_step!(g::Game)
     # Move the snake position
     tail = move!(g.snake, g.direction)
     
+    # Check if game is over
+    reward = 0
+    game_over = false
     # Look for collisions
     if is_collision(g.snake)
-        println(
-            """
-            ==================
-            GAME OVER!
-            Final Score: $(g.score)
-            ==================\n""")
-        # Reset the game
-        reset!(g)   # TODO: move this logic out of the game step
-
+        game_over = true
+        reward = -10
+        
     elseif g.snake.head == g.food
         # Snake's length grows by one block
         push!(g.snake.body, tail)
 
         # Adjust the score and place new food
         g.score += 1
+        reward = 10
         g.food = place_food(g.snake)
     end
 
-    return g
+    return reward, game_over, g.score
 end
