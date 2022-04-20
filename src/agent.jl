@@ -1,14 +1,18 @@
-using DataStructures: CircularBuffer
+import DataStructures: CircularBuffer
+import Flux: onecold
+import StatsBase: sample
 
 mutable struct Agent{T <: Integer}
     n_games::T
     ϵ::T  # Randomness
     γ::T  # Discount rate
     memory::CircularBuffer{T}
+    model
+    trainer
     # TODO: model, trainer
 
     function Agent()
-        new{Int}(0, 0, 0, CircularBuffer{Int}(MAX_MEMORY))
+        new{Int}(0, 0, 0, CircularBuffer{Int}(MAX_MEMORY), nothing, nothing)
     end
 end
 
@@ -54,26 +58,42 @@ function get_state(game)
         game.food.x < game.snake.head.x,  # food left
         game.food.x > game.snake.head.x,  # food right
         game.food.y < game.snake.head.y,  # food up
-        game.food.y > game.snake.head.y  # food down
+        game.food.y > game.snake.head.y   # food down
     ]
 
     return convert.(Int, state)
 end
 
-function remember(state, action, reward, next_state, done)
+function remember(agent, state, action, reward, next_state, done)
+    push!(agent.ϵ, (state, action, reward, next_state, done))
+end
+
+function train_short_memory(agent, state, action, reward, next_state, done)
+    train_step!(agent.trainer, state, action, reward, next_state, done)
+end
+
+function train_long_memory(agent)
+    if length(agent.ϵ) > BATCH_SIZE
+        mini_sample = sample(agent.ϵ, BATCH_SIZE)
+    else
+        mini_sample = agent.ϵ
+    end
+
+    states, actions, rewards, next_states, dones = map(x->getfield.(mini_sample, x), fieldnames(eltype(mini_sample)))
+    train_step(agent.trainer, states, actions, rewards, next_states, dones)
+end
+
+function get_action(agent::Agent, state; rand_range::UnitRange{Integer}=1:200)
+    agent.ϵ = 80 - agent.n_games
+    final_move = zeros(Int, 3)
     
-end
-
-function train_short_memory(state, action, reward, next_state, done)
-
-end
-
-function train_long_memory()
-
-end
-
-function get_action(state)
-
+    if rand(rand_range) < agent.ϵ
+        move = rand(1:3)
+        final_move[move] = 1
+    else
+        pred = agent.model(state)
+        final_move[onecold(pred)] = 1
+    end
 end
 
 function train()
@@ -88,7 +108,7 @@ function train()
         old_state = get_state(game)
 
         # Get the move
-        final_move = get_action(old_state)
+        final_move = get_action(agent, old_state)
 
         # Perform the move
         game.direction = final_move
@@ -96,25 +116,25 @@ function train()
         new_state = get_state(game)
 
         # Train the short memory
-        train_short_memory(old_state, final_move, reward, new_state, done)
+        train_short_memory(agent, old_state, final_move, reward, new_state, done)
 
         # Remember
-        remember(old_state, final_move, reward, new_state, done)
-    
+        remember(agent, old_state, final_move, reward, new_state, done)
+
         if done
             # Reset the game
             reset!(game)
             agent.n_games += 1
-            train_long_memory()
+            train_long_memory(agent)
 
             if score > agent.record
                 agent.record = score
                 # TODO: save the model
             end
         end
-        
+
         # TODO: Plotting the results
-    
+
     end
 
 end
