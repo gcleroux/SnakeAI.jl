@@ -1,12 +1,13 @@
-using ..SnakeAI
+import ..SnakeAI
+import ..SnakeAI: play_step!, reset!
 
 const WIDTH = SnakeAI.WIDTH
 const HEIGHT = SnakeAI.HEIGHT
 const BACKGROUND = colorant"black"
-const SPEED = 8
+const FRAME_BUFFER = 8     # Updates UI at every n frames
 
 game = SnakeAI.Game()
-step = 0
+step = 1
 
 function draw()
     # Drawing the snake
@@ -37,8 +38,8 @@ function update(g::GameZero.Game)
         game.direction = SnakeAI.RIGHT
     end
 
-    if step == SPEED
-        step = 0
+    if step == FRAME_BUFFER
+        step = 1
         _, game_over, score = play_step!(game)
 
         if game_over

@@ -1,6 +1,6 @@
 module SnakeAI
 
-using GameZero
+import GameZero
 
 export play_snake, 
     Game, 
