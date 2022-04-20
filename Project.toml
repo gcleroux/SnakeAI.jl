@@ -12,6 +12,7 @@ StatsBase = "2913bbd2-ae8a-5f71-8c99-4fb6c76f3a91"
 
 [compat]
 Colors = "0.12"
+DataStructures = "0.18"
 GameZero = "0.2"
 julia = "1"
 
