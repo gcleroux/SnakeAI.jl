@@ -3,7 +3,7 @@ import Flux
 import StatsBase: sample
 
 # Type Definitions
-const AgentMemoryData = NTuple{5, Vector{Int}}
+const AgentMemoryData = NTuple{5,Vector{Int}}
 
 Base.@kwdef mutable struct Agent
     n_games::Int = 0
@@ -12,6 +12,7 @@ Base.@kwdef mutable struct Agent
     γ::Float32 = 0.9  # Discount rate
     memory::CircularBuffer = CircularBuffer{AgentMemoryData}(MAX_MEMORY)
     model::Flux.Chain = create_linear_QNet(11, 256, 3)
+    params = Flux.params(model)
     opt = Flux.ADAM(LR)
     criterion = Flux.mse
 end
@@ -64,7 +65,7 @@ function get_state(game::Game)
     return convert.(Int, state)
 end
 
-function remember(agent::Agent, state::S, action::S, reward::T, next_state::S, done::Bool) where {T<:Int, S<:AbstractVector{T}}
+function remember(agent::Agent, state::S, action::S, reward::T, next_state::S, done::Bool) where {T<:Int,S<:AbstractVector{T}}
     push!(agent.memory, (state, action, [reward], next_state, convert.(Int, [done])))
 end
 
@@ -118,19 +119,19 @@ function train(agent::Agent, game::Game)
 
     if done
         # Reset the game
-        reset!(game)
-        agent.n_games += 1
         train_long_memory(agent)
         println("Game => $(agent.n_games)")
         println("Score => $(score)")
-
+        reset!(game)
+        agent.n_games += 1
+        
         if score > agent.record
             agent.record = score
             # save_model(joinpath(MODELS_PATH, "model_$(agent.n_games).bson"), agent.model)
         end
     end
 
-    return done
+    return old_state, new_state
 end
 
 function send_inputs!(game::Game, inputs::AbstractVector{Int})
@@ -152,8 +153,6 @@ end
 
 function step!(agent, state, action, reward, next_state, done)
 
-    params = Flux.params(agent.model)
-
     # Batching the states
     state = Flux.batch(state)
     next_state = Flux.batch(next_state)
@@ -161,24 +160,31 @@ function step!(agent, state, action, reward, next_state, done)
     reward = Flux.batch(reward)
     done = Flux.batch(done)
 
+    # Converting the data to float for training
+    state = convert.(Float32, state)
+    next_state = convert.(Float32, next_state)
+    reward = convert.(Float32, reward)
+
     # Forward pass
-    preds = agent.model(state)
+    targets = agent.model(state)
+
     Q_news = agent.model(next_state)
-    targets = copy(preds)
 
     for idx in 1:length(done)
+
         Q_new = reward[idx]
         if done[idx] == 0
             Q_new = reward[idx] + agent.γ * maximum(Q_news[:, idx])
         end
 
-        targets[argmax(action[idx]), idx] = Q_new
+        targets[argmax(action[:, idx]), idx] = Q_new
+
     end
 
-    gradient = Flux.gradient(params) do
-        agent.criterion(preds, targets)
+    gradient = Flux.gradient(agent.params) do
+        preds = agent.model(state)
+        Flux.mse(preds, targets)
     end
 
-    Flux.Optimise.update!(agent.opt, params, gradient)
-
+    Flux.Optimise.update!(agent.opt, agent.params, gradient)
 end
