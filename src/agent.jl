@@ -183,5 +183,4 @@ function step!(agent, state, action, reward, next_state, done)
     end
 
     Flux.Optimise.update!(agent.opt, agent.params, gradient)
-
 end
