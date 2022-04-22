@@ -26,6 +26,8 @@ julia> using Pkg
 julia> Pkg.activate(".")
 
 julia> Pkg.instantiate()
+
+julia> using SnakeAI
 ```
 
 ## Using the package
@@ -33,14 +35,13 @@ There are two ways of using this package currently. You can play Snake yourself 
 
 To play a game of Snake yourself, enter the follwing commands in the REPL:
 ```julia
-julia> using SnakeAI
+
 
 julia> play_snake()
 ```
 
 To train an agent, enter the follwing commands in the REPL:
 ```julia
-julia> using SnakeAI
 
 julia> train_agent()
 ```
