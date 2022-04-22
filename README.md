@@ -1,7 +1,7 @@
 # SnakeAI
 
 This is a small personal project which goal is to make a reinforcement learning agent learn how to play snake effectively.
-The code is strongly inspired by the video tutorials of [Python Engineer](https://www.youtube.com/watch?v=PJl4iabBEz0&list=PLqnslRFeH2UrDh7vUmJ60YrmWd64mTTKV).
+The code is strongly inspired by the tutorial videos of [Python Engineer](https://www.youtube.com/watch?v=PJl4iabBEz0&list=PLqnslRFeH2UrDh7vUmJ60YrmWd64mTTKV).
 
 ## Get Started
 To install and run this project, follow theses instructions:
