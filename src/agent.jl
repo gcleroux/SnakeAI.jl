@@ -153,38 +153,35 @@ end
 
 function step!(agent, state, action, reward, next_state, done)
 
-    # Batching the states
-    state = Flux.batch(state)
-    next_state = Flux.batch(next_state)
+    # Batching the states and converting data to Float32 (done implicitly otherwise)
+    state = Flux.batch(state) |> x -> convert.(Float32, x)
+    next_state = Flux.batch(next_state) |> x -> convert.(Float32, x)
     action = Flux.batch(action)
-    reward = Flux.batch(reward)
+    reward = Flux.batch(reward) |> x -> convert.(Float32, x)
     done = Flux.batch(done)
 
-    # Converting the data to float for training
-    state = convert.(Float32, state)
-    next_state = convert.(Float32, next_state)
-    reward = convert.(Float32, reward)
+    # Current expected reward
+    Q₀ = agent.model(state)
 
-    # Forward pass
-    targets = agent.model(state)
-
-    Q_news = agent.model(next_state)
+    # Expected values of next state
+    Qₙ = agent.model(next_state)
 
     for idx in 1:length(done)
 
-        Q_new = reward[idx]
+        Q′ = reward[idx]
         if done[idx] == 0
-            Q_new = reward[idx] + agent.γ * maximum(Q_news[:, idx])
+            Q′ = reward[idx] + agent.γ * maximum(Qₙ[:, idx])
         end
 
-        targets[argmax(action[:, idx]), idx] = Q_new
-
+        # Adjusting the expected reward for selected move
+        Q₀[argmax(action[:, idx]), idx] = Q′
     end
 
     gradient = Flux.gradient(agent.params) do
-        preds = agent.model(state)
-        Flux.mse(preds, targets)
+        ŷ = agent.model(state)
+        Flux.mse(ŷ, Q₀)
     end
 
     Flux.Optimise.update!(agent.opt, agent.params, gradient)
+
 end
