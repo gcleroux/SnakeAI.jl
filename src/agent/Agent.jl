@@ -6,6 +6,5 @@ export AbstractAgent,
 
 include("agents.jl")
 include("functions.jl")
-# include("linear_agent.jl")
 
 end # module

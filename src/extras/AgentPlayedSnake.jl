@@ -5,11 +5,7 @@ const HEIGHT = SnakeAI.HEIGHT
 const BACKGROUND = colorant"black"
 
 game = SnakeAI.Game()
-agent = LinearAgent()
-plot_scores = Int[]
-plot_mean_scores = []
-total_score = 0
-record = 0
+agent = SnakeAgent()
 
 function draw()
     # Drawing the snake

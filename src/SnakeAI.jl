@@ -1,30 +1,19 @@
 module SnakeAI
 """
 TODO: 
-   - Have a types.jl file that includes Point, Snake, Game, Agent...
-   - Adjust type hints in agent.jl
-   - Create data types for code readability
-   - Plotting in real time of training's progress
-   - Adding GPU support
-   - Modifying the state's vector to include information about the snake's body
+- Plotting in real time of training's progress
+- Adding GPU support
+- Modifying the state's vector to include information about the snake's body
 """
 
-import GameZero
+import GameZero: rungame
 
 export play_snake,
+    demo_agent,
     train_agent,
     Game,
     play_step!,
-    train_step!,
     reset!
-
-function play_snake()
-    GameZero.rungame("src/extras/HumanPlayableSnake.jl")
-end
-
-function train_agent()
-    GameZero.rungame("src/extras/AgentPlayedSnake.jl")
-end
 
 include("constants.jl")
 include("point.jl")
@@ -36,9 +25,12 @@ include("model/Model.jl")
 using .Model
 export save_model
 
+# Agent module
 include("agent/Agent.jl")
 using .Agent
-export LinearAgent,
+export SnakeAgent,
     train!
+
+include("functions.jl")
 
 end
