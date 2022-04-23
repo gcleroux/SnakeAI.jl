@@ -1,5 +1,4 @@
 import DataStructures: CircularBuffer
-import StatsBase: sample
 
 const MemoryData = NTuple{5,Vector{Int}}
 
