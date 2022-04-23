@@ -4,9 +4,8 @@ TODO:
 - Plotting in real time of training's progress
 - Adding GPU support
 - Modifying the state's vector to include information about the snake's body
+- Adding tests on memory types
 """
-
-import GameZero: rungame
 
 export play_snake,
     demo_agent,
@@ -29,6 +28,7 @@ export save_model
 include("agent/Agent.jl")
 using .Agent
 export SnakeAgent,
+    CircularBufferMemory,
     train!
 
 include("functions.jl")

@@ -46,10 +46,76 @@ function reset!(game::Game)
     game.score = 0
 end
 
+function get_state(game::Game)
+    head = game.snake.head
+    point_l = Point(head.x - BLOCK_SIZE, head.y)
+    point_r = Point(head.x + BLOCK_SIZE, head.y)
+    point_u = Point(head.x, head.y - BLOCK_SIZE)
+    point_d = Point(head.x, head.y + BLOCK_SIZE)
+
+    dir_l = game.direction == LEFT
+    dir_r = game.direction == RIGHT
+    dir_u = game.direction == UP
+    dir_d = game.direction == DOWN
+
+    # Create the state vector
+    state = [
+        # Danger straight
+        (dir_r && is_collision(game.snake, point_r)) ||
+        (dir_l && is_collision(game.snake, point_l)) ||
+        (dir_u && is_collision(game.snake, point_u)) ||
+        (dir_d && is_collision(game.snake, point_d)),
+
+        # Danger right
+        (dir_u && is_collision(game.snake, point_r)) ||
+        (dir_d && is_collision(game.snake, point_l)) ||
+        (dir_l && is_collision(game.snake, point_u)) ||
+        (dir_r && is_collision(game.snake, point_d)),
+
+        # Danger left
+        (dir_d && is_collision(game.snake, point_r)) ||
+        (dir_u && is_collision(game.snake, point_l)) ||
+        (dir_r && is_collision(game.snake, point_u)) ||
+        (dir_l && is_collision(game.snake, point_d)),
+
+        # Move direction
+        dir_l,
+        dir_r,
+        dir_u,
+        dir_d,
+
+        # Food location 
+        game.food.x < game.snake.head.x,  # food left
+        game.food.x > game.snake.head.x,  # food right
+        game.food.y < game.snake.head.y,  # food up
+        game.food.y > game.snake.head.y   # food down
+    ]
+
+    return convert.(Int, state)
+end
+
+function send_inputs!(game::Game, move::AbstractArray{<:Integer})
+    if move == [1, 0, 0]
+        new_dir = game.direction    # No changes in direction
+    elseif move == [0, 1, 0]
+        idx = Int(game.direction) + 1
+        idx > 4 ? idx = 1 : nothing
+        new_dir = Direction(idx)    # Turning clockwise
+    elseif move == [0, 0, 1]
+        idx = Int(game.direction) - 1
+        idx < 1 ? idx = 4 : nothing
+        new_dir = Direction(idx)    # Turning anticlockwise
+    end
+
+    # Perform the move
+    game.direction = new_dir
+    return
+end
+
 function play_step!(g::Game)
     # Move the snake position
     tail = move!(g.snake, g.direction)
-    
+
     # Check if game is over
     reward = 0
     game_over = false
@@ -57,7 +123,7 @@ function play_step!(g::Game)
     if is_collision(g.snake)
         game_over = true
         reward = -10
-        
+
     elseif g.snake.head == g.food
         # Snake's length grows by one block
         push!(g.snake.body, tail)
