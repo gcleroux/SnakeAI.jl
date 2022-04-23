@@ -1,82 +1,16 @@
 import ..SnakeAI
 
-function get_state(game::SnakeAI.Game)
-    head = game.snake.head
-    point_l = SnakeAI.Point(head.x - SnakeAI.BLOCK_SIZE, head.y)
-    point_r = SnakeAI.Point(head.x + SnakeAI.BLOCK_SIZE, head.y)
-    point_u = SnakeAI.Point(head.x, head.y - SnakeAI.BLOCK_SIZE)
-    point_d = SnakeAI.Point(head.x, head.y + SnakeAI.BLOCK_SIZE)
-
-    dir_l = game.direction == SnakeAI.LEFT
-    dir_r = game.direction == SnakeAI.RIGHT
-    dir_u = game.direction == SnakeAI.UP
-    dir_d = game.direction == SnakeAI.DOWN
-
-    # Create the state vector
-    state = [
-        # Danger straight
-        (dir_r && SnakeAI.is_collision(game.snake, point_r)) ||
-        (dir_l && SnakeAI.is_collision(game.snake, point_l)) ||
-        (dir_u && SnakeAI.is_collision(game.snake, point_u)) ||
-        (dir_d && SnakeAI.is_collision(game.snake, point_d)),
-
-        # Danger right
-        (dir_u && SnakeAI.is_collision(game.snake, point_r)) ||
-        (dir_d && SnakeAI.is_collision(game.snake, point_l)) ||
-        (dir_l && SnakeAI.is_collision(game.snake, point_u)) ||
-        (dir_r && SnakeAI.is_collision(game.snake, point_d)),
-
-        # Danger left
-        (dir_d && SnakeAI.is_collision(game.snake, point_r)) ||
-        (dir_u && SnakeAI.is_collision(game.snake, point_l)) ||
-        (dir_r && SnakeAI.is_collision(game.snake, point_u)) ||
-        (dir_l && SnakeAI.is_collision(game.snake, point_d)),
-
-        # Move direction
-        dir_l,
-        dir_r,
-        dir_u,
-        dir_d,
-
-        # Food location 
-        game.food.x < game.snake.head.x,  # food left
-        game.food.x > game.snake.head.x,  # food right
-        game.food.y < game.snake.head.y,  # food up
-        game.food.y > game.snake.head.y   # food down
-    ]
-
-    return convert.(Int, state)
-end
-
-function send_inputs!(game::SnakeAI.Game, move::AbstractArray{<:Integer})
-    if move == [1, 0, 0]
-        new_dir = game.direction    # No changes in direction
-    elseif move == [0, 1, 0]
-        idx = Int(game.direction) + 1
-        idx > 4 ? idx = 1 : nothing
-        new_dir = SnakeAI.Direction(idx)    # Turning clockwise
-    elseif move == [0, 0, 1]
-        idx = Int(game.direction) - 1
-        idx < 1 ? idx = 4 : nothing
-        new_dir = SnakeAI.Direction(idx)    # Turning anticlockwise
-    end
-
-    # Perform the move
-    game.direction = new_dir
-    return
-end
-
 function train!(agent::AbstractAgent, game::SnakeAI.Game)
     # Get the current step
-    old_state = get_state(game)
+    old_state = SnakeAI.get_state(game)
 
     # Get the predicted move for the state
     move = get_action(agent, old_state)
-    send_inputs!(game, move)
+    SnakeAI.send_inputs!(game, move)
 
     # Play the step
     reward, done, score = SnakeAI.play_step!(game)
-    new_state = get_state(game)
+    new_state = SnakeAI.get_state(game)
 
     # Train the short memory
     train_short_memory(agent, old_state, move, reward, new_state, done)
@@ -99,19 +33,33 @@ function train!(agent::AbstractAgent, game::SnakeAI.Game)
     return done
 end
 
-function remember(agent::SnakeAgent, state::S, action::S, reward::T, next_state::S, done::Bool) where {T<:Integer,S<:AbstractArray{<:T}}
-    push!(agent.memory, (state, action, [reward], next_state, convert.(Int, [done])))
+function remember(
+    agent::AbstractAgent,
+    state::S,
+    action::S,
+    reward::T,
+    next_state::S,
+    done::Bool
+) where {T<:Integer,S<:AbstractArray{<:T}}
+    push!(agent.memory.data, (state, action, [reward], next_state, convert.(Int, [done])))
 end
 
-function train_short_memory(agent::SnakeAgent, state::S, action::S, reward::T, next_state::S, done::Bool) where {T<:Integer,S<:AbstractArray{<:T}}
+function train_short_memory(
+    agent::AbstractAgent,
+    state::S,
+    action::S,
+    reward::T,
+    next_state::S,
+    done::Bool
+) where {T<:Integer,S<:AbstractArray{<:T}}
     update!(agent, state, action, reward, next_state, convert(Int, done))
 end
 
-function train_long_memory(agent::SnakeAgent)
-    if length(agent.memory) > BATCH_SIZE
-        mini_sample = sample(agent.memory, BATCH_SIZE)
+function train_long_memory(agent::AbstractAgent)
+    if length(agent.memory.data) > BATCH_SIZE
+        mini_sample = sample(agent.memory.data, BATCH_SIZE)
     else
-        mini_sample = agent.memory
+        mini_sample = agent.memory.data
     end
 
     states, actions, rewards, next_states, dones = map(x -> getfield.(mini_sample, x), fieldnames(eltype(mini_sample)))
@@ -136,12 +84,13 @@ end
 
 function update!(
     agent::SnakeAgent,
-    state::Union{A, AA},
-    action::Union{A, AA},
-    reward::Union{T, AA},
-    next_state::Union{A, AA},
-    done::Union{T, AA};
-    γ::Float32=0.9f0) where {T<:Integer, A<:AbstractArray{<:T}, AA<:AbstractArray{A}}
+    state::Union{A,AA},
+    action::Union{A,AA},
+    reward::Union{T,AA},
+    next_state::Union{A,AA},
+    done::Union{T,AA};
+    γ::Float32=0.9f0
+) where {T<:Integer,A<:AbstractArray{<:T},AA<:AbstractArray{A}}
 
     # Batching the states and converting data to Float32 (done implicitly otherwise)
     state = Flux.batch(state) |> x -> convert.(Float32, x)

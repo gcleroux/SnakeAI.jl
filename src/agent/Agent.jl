@@ -1,9 +1,10 @@
 module Agent
 
-export AbstractAgent, 
-    SnakeAgent, 
-    train!
+export SnakeAgent, 
+    train!,
+    CircularBufferMemory
 
+include("memory.jl")
 include("agents.jl")
 include("functions.jl")
 
