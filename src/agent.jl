@@ -12,7 +12,6 @@ Base.@kwdef mutable struct Agent
     γ::Float32 = 0.9  # Discount rate
     memory::CircularBuffer = CircularBuffer{AgentMemoryData}(MAX_MEMORY)
     model::Flux.Chain = create_linear_QNet(11, 256, 3)
-    params = Flux.params(model)
     opt = Flux.ADAM(LR)
     criterion = Flux.mse
 end
@@ -166,6 +165,7 @@ function step!(agent, state, action, reward, next_state, done)
     # Expected values of next state
     Qₙ = agent.model(next_state)
 
+    # Adjusting values of current state with next state's knowledge
     for idx in 1:length(done)
 
         Q′ = reward[idx]
@@ -177,10 +177,15 @@ function step!(agent, state, action, reward, next_state, done)
         Q₀[argmax(action[:, idx]), idx] = Q′
     end
 
-    gradient = Flux.gradient(agent.params) do
+    # Get the model's params for back propagation
+    params = Flux.params(agent.model)
+
+    # Calculate the gradient
+    gradient = Flux.gradient(params) do
         ŷ = agent.model(state)
-        Flux.mse(ŷ, Q₀)
+        agent.criterion(ŷ, Q₀)
     end
 
-    Flux.Optimise.update!(agent.opt, agent.params, gradient)
+    # Update model weights
+    Flux.Optimise.update!(agent.opt, params, gradient)
 end
