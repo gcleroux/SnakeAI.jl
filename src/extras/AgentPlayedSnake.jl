@@ -28,7 +28,7 @@ function draw()
 end
 
 function update(g::GameZero.Game)
-    global agent, game, step
-    
+    global agent, game
+
     SnakeAI.train(agent, game)
 end

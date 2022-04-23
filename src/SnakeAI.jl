@@ -3,9 +3,11 @@ module SnakeAI
 TODO: 
    - Have a types.jl file that includes Point, Snake, Game, Agent...
    - Adjust type hints in agent.jl
-   - Convert state to float maybe, 
+   - Create data types for code readability
+   - Plotting in real time of training's progress
+   - Adding GPU support
+   - Modifying the state's vector to include information about the snake's body
 """
-
 
 import GameZero
 
