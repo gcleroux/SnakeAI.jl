@@ -20,6 +20,7 @@ $ cd SnakeAI.jl/
 ```
 
 3. Installing deps
+
 ```julia
 julia> using Pkg
 
@@ -34,14 +35,21 @@ julia> using SnakeAI
 There are two ways of using this package currently. You can play Snake yourself or train an agent to play.
 
 To play a game of Snake yourself, enter the follwing commands in the REPL:
+
 ```julia
-
-
 julia> play_snake()
 ```
 
-To train an agent, enter the follwing commands in the REPL:
-```julia
+To visualize an agent's training, enter the follwing commands in the REPL:
 
-julia> train_agent()
+```julia
+julia> demo_agent()
+```
+You can create your own agent with the `Agent` interface. Once created, you can
+use the `train_agent` function to benchmark it's performance:
+
+```julia
+julia> my_agent = SnakeAgent(args...)
+
+julia> train_agent(my_agent)
 ```
