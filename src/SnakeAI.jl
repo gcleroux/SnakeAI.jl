@@ -36,8 +36,9 @@ include("model/Model.jl")
 using .Model
 export save_model
 
-# include("agent/Agent.jl")
-# using .Agent
-# export LinearAgent
+include("agent/Agent.jl")
+using .Agent
+export LinearAgent,
+    train!
 
 end

@@ -12,11 +12,6 @@ const HEIGHT = 480
     LEFT = 4
 end
 
-# Constants for the agent
-const MAX_MEMORY = 100_000
-const BATCH_SIZE = 1000
-const LR = 1e-3
-
 # Constants for the model
 const device = cpu
 

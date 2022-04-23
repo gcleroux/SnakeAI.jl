@@ -1,12 +1,11 @@
-import ..SnakeAI
-import ..SnakeAI: play_step!, reset!
+using SnakeAI
 
 const WIDTH = SnakeAI.WIDTH
 const HEIGHT = SnakeAI.HEIGHT
 const BACKGROUND = colorant"black"
 
 game = SnakeAI.Game()
-agent = SnakeAI.Agent()
+agent = LinearAgent()
 plot_scores = Int[]
 plot_mean_scores = []
 total_score = 0
@@ -30,5 +29,5 @@ end
 function update(g::GameZero.Game)
     global agent, game
 
-    SnakeAI.train(agent, game)
+    train!(agent, game)
 end
