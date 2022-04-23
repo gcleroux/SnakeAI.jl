@@ -30,7 +30,14 @@ include("constants.jl")
 include("point.jl")
 include("snake.jl")
 include("game.jl")
-include("model.jl")
-include("agent.jl")
+
+# Model module
+include("model/Model.jl")
+using .Model
+export save_model
+
+# include("agent/Agent.jl")
+# using .Agent
+# export LinearAgent
 
 end
