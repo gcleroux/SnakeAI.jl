@@ -52,7 +52,7 @@ function train_short_memory(
     next_state::S,
     done::Bool
 ) where {T<:Integer,S<:AbstractArray{<:T}}
-    update!(agent, state, action, reward, next_state, convert(Int, done))
+    update!(agent, state, action, reward, next_state, done)
 end
 
 function train_long_memory(agent::AbstractAgent)
@@ -88,33 +88,31 @@ function update!(
     action::Union{A,AA},
     reward::Union{T,AA},
     next_state::Union{A,AA},
-    done::Union{T,AA};
-    γ::Float32=0.9f0
+    done::Union{Bool,AA};
+    α::Float32=0.9f0    # Step size
 ) where {T<:Integer,A<:AbstractArray{<:T},AA<:AbstractArray{A}}
-
     # Batching the states and converting data to Float32 (done implicitly otherwise)
     state = Flux.batch(state) |> x -> convert.(Float32, x)
     next_state = Flux.batch(next_state) |> x -> convert.(Float32, x)
-    action = Flux.batch(action)
+    action = Flux.batch(action) |> x -> convert.(Float32, x)
     reward = Flux.batch(reward) |> x -> convert.(Float32, x)
     done = Flux.batch(done)
 
     # Current expected reward
-    Q₀ = agent.model(state)
+    Qₙ₊₁ = agent.model(state)
 
-    # Expected values of next state
-    Qₙ = agent.model(next_state)
+    # Expected rewards of next state
+    Rₙ = agent.model(next_state)
 
     # Adjusting values of current state with next state's knowledge
     for idx in 1:length(done)
-
-        Q′ = reward[idx]
-        if done[idx] == 0
-            Q′ = reward[idx] + γ * maximum(Qₙ[:, idx])
+        Qₙ = reward[idx]
+        if done[idx] == false
+            Qₙ += α * maximum(Rₙ[:, idx])
         end
 
         # Adjusting the expected reward for selected move
-        Q₀[argmax(action[:, idx]), idx] = Q′
+        Qₙ₊₁[argmax(action[:, idx]), idx] = Qₙ
     end
 
     # Get the model's params for back propagation
@@ -123,7 +121,7 @@ function update!(
     # Calculate the gradient
     gradient = Flux.gradient(params) do
         ŷ = agent.model(state)
-        agent.criterion(ŷ, Q₀)
+        agent.criterion(ŷ, Qₙ₊₁)
     end
 
     # Update model weights
