@@ -1,4 +1,5 @@
 import ..SnakeAI
+import Zygote: Buffer
 
 function train!(agent::AbstractAgent, game::SnakeAI.Game)
     # Get the current step
@@ -98,32 +99,37 @@ function update!(
     reward = Flux.batch(reward) |> x -> convert.(Float32, x)
     done = Flux.batch(done)
 
-    # Current expected reward
-    Qₙ₊₁ = agent.model(state)
-
-    # Expected rewards of next state
-    Rₙ = agent.model(next_state)
-
-    # Adjusting values of current state with next state's knowledge
-    for idx in 1:length(done)
-        Qₙ = reward[idx]
-        if done[idx] == false
-            Qₙ += α * maximum(Rₙ[:, idx])
-        end
-
-        # Adjusting the expected reward for selected move
-        Qₙ₊₁[argmax(action[:, idx]), idx] = Qₙ
-    end
+    # Model's prediction for next state
+    y = agent.model(next_state)
 
     # Get the model's params for back propagation
-    params = Flux.params(agent.model)
+    ps = Flux.params(agent.model)
 
-    # Calculate the gradient
-    gradient = Flux.gradient(params) do
+    # Calculate the gradients
+    gs = Flux.gradient(ps) do
+        # Forward pass
         ŷ = agent.model(state)
-        agent.criterion(ŷ, Qₙ₊₁)
+
+        # Creating buffer to allow mutability when calculating gradients
+        Rₙ = Buffer(ŷ, size(ŷ))
+
+        # Adjusting values of current state with next state's knowledge
+        for idx in 1:length(done)
+            # Copy preds into buffer
+            Rₙ[:, idx] = ŷ[:, idx]
+
+            Qₙ = reward[idx]
+            if done[idx] == false
+                Qₙ += α * maximum(y[:, idx])
+            end
+            
+            # Adjusting the expected reward for selected move
+            Rₙ[argmax(action[:, idx]), idx] = Qₙ
+        end
+        # Calculate the loss
+        agent.criterion(ŷ, copy(Rₙ))
     end
 
     # Update model weights
-    Flux.Optimise.update!(agent.opt, params, gradient)
+    Flux.Optimise.update!(agent.opt, ps, gs)
 end
