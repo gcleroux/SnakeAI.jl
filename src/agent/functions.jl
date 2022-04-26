@@ -122,7 +122,7 @@ function update!(
             if done[idx] == false
                 Qₙ += α * maximum(y[:, idx])
             end
-            
+
             # Adjusting the expected reward for selected move
             Rₙ[argmax(action[:, idx]), idx] = Qₙ
         end
