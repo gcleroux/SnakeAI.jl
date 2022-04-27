@@ -1,7 +1,3 @@
-import Flux
-import ..SnakeAI
-import StatsBase: sample
-
 # Constants for the agent
 const BATCH_SIZE = 1000
 const LR = 1e-3

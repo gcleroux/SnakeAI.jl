@@ -1,11 +1,10 @@
 module SnakeAI
-"""
+#=
 TODO: 
 - Plotting in real time of training's progress
-- Adding GPU support
 - Modifying the state's vector to include information about the snake's body
 - Adding tests on memory types
-"""
+=#
 
 export play_snake,
     demo_agent,

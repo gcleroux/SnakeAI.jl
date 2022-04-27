@@ -1,6 +1,13 @@
 module Agent
 
-export SnakeAgent, 
+import ..SnakeAI
+
+import DataStructures: CircularBuffer
+import Flux
+import StatsBase: sample
+import Zygote: Buffer
+
+export SnakeAgent,
     train!,
     CircularBufferMemory
 

@@ -1,5 +1,3 @@
-import DataStructures: CircularBuffer
-
 const MemoryData = NTuple{5,Vector{Int}}
 
 abstract type AgentMemory end

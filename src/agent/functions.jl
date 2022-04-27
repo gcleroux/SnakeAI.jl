@@ -1,6 +1,3 @@
-import ..SnakeAI
-import Zygote: Buffer
-
 function train!(agent::AbstractAgent, game::SnakeAI.Game)
     # Get the current step
     old_state = SnakeAI.get_state(game)

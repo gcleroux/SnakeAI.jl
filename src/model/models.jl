@@ -1,8 +1,6 @@
-import Flux: Dense, relu
-
 function linear_QNet(input_size::T, hidden_size::T, output_size::T) where {T<:Integer}
     # Creating the model
-    model = Flux.Chain(
+    model = Chain(
 		# First linear layer
 		Dense(input_size => hidden_size, relu),
 
